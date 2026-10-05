@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SORIX — o novo cérebro do Kiba</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--night:#0B1020;--night2:#121a33;--amber:#F2B84B;--teal:#2DD4BF;--cream:#F5EFE3;--terra:#D9703F;--mut:#9aa3bd;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--night);color:var(--cream);font-family:'Manrope','Inter Tight',system-ui,sans-serif;line-height:1.6;overflow-x:hidden}
+body.lock{overflow:hidden}
+h1,h2,h3{font-family:'Unbounded','Space Grotesk',system-ui,sans-serif;line-height:1.15;margin:0}
+h2{font-size:clamp(1.5rem,4.5vw,2.4rem);margin-bottom:.6rem}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.25rem}
+section{padding:5rem 0;position:relative;z-index:1}
+.tag{display:inline-block;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:.8rem}
+.lead{color:var(--mut);max-width:60ch;margin:0 0 2rem}
+.btn{display:inline-block;background:var(--amber);color:var(--night);font-weight:700;padding:.9rem 1.6rem;border-radius:999px;text-decoration:none;border:0;font:inherit;font-weight:700;cursor:pointer;transition:transform .2s,background .2s}
+.btn:hover{transform:translateY(-2px);background:#ffc861}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s,transform .7s}
+.rv.in{opacity:1;transform:none}
+/* cidade ao fundo */
+#city{position:fixed;inset:auto 0 0 0;height:55vh;z-index:0;pointer-events:none;opacity:.28;overflow:hidden}
+#city .L{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-end;gap:6px;will-change:transform}
+#city .b{flex:1;background:var(--night2);background-image:radial-gradient(circle,rgba(242,184,75,.7) 1.4px,transparent 2px);background-size:11px 15px;border-radius:3px 3px 0 0}
+/* intro */
+#intro{position:fixed;inset:0;z-index:50;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:6vh 1rem 4vh;transition:transform 1s cubic-bezier(.7,0,.2,1);overflow:hidden}
+#intro.out{transform:translateY(-100%)}
+#grid{display:grid;grid-template-columns:repeat(31,1fr);width:min(760px,100%);margin-top:4vh}
+#grid i{aspect-ratio:1/1.25;background:#0e162d;position:relative;display:block}
+#grid i.nb{visibility:hidden}
+#grid i.edge{box-shadow:inset 2px 0 var(--night)}
+#grid i::after{content:"";position:absolute;inset:22% 24%;background:#18213d;transition:background .5s,box-shadow .5s}
+#grid i.on::after{background:var(--amber);box-shadow:0 0 8px rgba(242,184,75,.55)}
+#grid i.tl.on::after{background:var(--teal);box-shadow:0 0 8px rgba(45,212,191,.6)}
+#grid i.hot.on::after{background:#ffd27a;box-shadow:0 0 14px rgba(255,200,100,.95);animation:hotp 1s ease-out}
+#grid i.dim.on::after{background:#1b2440;box-shadow:none}
+#intro{background-image:linear-gradient(rgba(45,212,191,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(45,212,191,.05) 1px,transparent 1px);background-size:36px 36px}
+#intro::before{content:"";position:absolute;inset:calc(12px + env(safe-area-inset-top,0px)) 12px 12px;border:1px solid rgba(45,212,191,.22);border-radius:6px;pointer-events:none}
+#intro::after{content:"";position:absolute;left:0;right:0;top:0;height:120px;background:linear-gradient(transparent,rgba(45,212,191,.13),transparent);animation:scan 3.6s linear infinite;pointer-events:none}
+@keyframes scan{from{transform:translateY(-120px)}to{transform:translateY(100vh)}}
+#hud{width:min(760px,100%);margin-top:2.2rem;font:500 .78rem/1.4 ui-monospace,Menlo,Consolas,monospace;color:var(--teal);position:relative;z-index:1}
+#hud>div:first-child{display:flex;justify-content:space-between}
+#hb{height:3px;background:rgba(45,212,191,.15);margin-top:.4rem}#hb i{display:block;height:100%;width:0;background:var(--teal);box-shadow:0 0 8px var(--teal)}
+#ring{position:absolute;bottom:-6px;left:50%;width:150px;height:16px;margin-left:-75px;border:1.5px solid var(--teal);border-radius:50%;opacity:0;transform:scale(.4);transition:.6s;box-shadow:0 0 14px rgba(45,212,191,.5)}
+#ring.show{opacity:1;transform:none}
+/* cérebros */
+.brains{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+@media(max-width:700px){.brains{grid-template-columns:1fr}}
+.br{background:var(--night2);border-radius:18px;padding:1.2rem;border-top:4px solid var(--terra)}
+.br.n{border-color:var(--teal)}
+.br h3{font-size:1rem;margin-bottom:.2rem}
+.br p{margin:.4rem 0 0;color:var(--mut);font-size:.9rem}
+.bn{width:100%;height:auto;overflow:visible}
+.bn .o{fill:none;stroke:rgba(245,239,227,.25);stroke-width:2}
+.bn line{stroke-width:1.6;opacity:0;transition:opacity .6s var(--d)}
+.bn circle{opacity:0;transition:opacity .5s var(--d)}
+.bn text{font-size:11px;font-weight:700;fill:var(--cream);paint-order:stroke;stroke:var(--night2);stroke-width:3px;opacity:0;transition:opacity .6s 1.6s}
+.bo line{stroke:var(--terra)}.bo circle{fill:var(--terra)}
+.bnw line{stroke:var(--teal)}.bnw circle{fill:var(--teal)}
+#brains.in .bn line{opacity:.75}#brains.in .bn circle,#brains.in .bn text{opacity:1}
+#brains.in .fl{animation:fl 1.4s linear infinite;stroke-dasharray:3 7}
+@keyframes fl{to{stroke-dashoffset:-20}}
+#stage{position:relative;width:min(760px,100%);height:230px;display:flex;justify-content:center;align-items:flex-end}
+#walker{position:absolute;bottom:0;left:50%;margin-left:-50px;width:100px;transform:translateX(-70vw);opacity:0}
+#walker.go{animation:walk 2.6s ease-out forwards}
+#walker svg{width:100px;display:block;transform-origin:50% 100%;animation:wb .3s ease-in-out infinite}
+#walker.stop svg{animation:none}
+@keyframes walk{0%{transform:translateX(-70vw);opacity:1}100%{transform:none;opacity:1}}
+@keyframes bob{25%{transform:rotate(-4deg)}50%{transform:translateY(-5px)}75%{transform:rotate(4deg)}}
+.kc{animation:kp 1.8s ease-in-out infinite}@keyframes kp{50%{opacity:.3}}
+.p15-eyes ellipse{transform-box:fill-box;transform-origin:center;animation:k15b 5.8s ease-in-out infinite}
+.p15-tail{transform-box:fill-box;transform-origin:15% 50%;animation:k15t 1.9s ease-in-out infinite}
+@keyframes k15b{0%,43%,100%{transform:scaleY(1)}45%,47%{transform:scaleY(.08)}49%{transform:scaleY(1)}}
+@keyframes k15t{0%,100%{transform:rotate(-5deg)}25%{transform:rotate(2deg)}50%{transform:rotate(8deg)}75%{transform:rotate(1deg)}}
+#bubble{position:absolute;bottom:172px;left:50%;transform:translateX(-50%) scale(.8);background:var(--cream);color:var(--night);padding:.7rem 1rem;border-radius:16px;font-weight:700;width:max-content;max-width:90vw;opacity:0;transition:.4s;text-align:center}
+#bubble::after{content:"";position:absolute;bottom:-8px;left:50%;margin-left:-8px;border:8px solid transparent;border-bottom:0;border-top-color:var(--cream)}
+#bubble.show{opacity:1;transform:translateX(-50%) scale(1)}
+#go{opacity:0;pointer-events:none;transition:opacity .6s}
+#go.show{opacity:1;pointer-events:auto}
+#skip{position:absolute;top:calc(1rem + env(safe-area-inset-top,0px));right:1rem;background:none;border:0;color:var(--mut);font:inherit;font-size:.85rem;cursor:pointer}
+/* hero / o que é */
+.about{display:grid;grid-template-columns:1fr 160px;gap:2rem;align-items:center}
+.about svg{width:100%;animation:flt 3s ease-in-out infinite}
+.about p{font-size:1.1rem;margin:.5rem 0}
+.about b{color:var(--teal)}
+@media(max-width:640px){.about{grid-template-columns:1fr}.about svg{width:130px}}
+/* barras */
+.leg{display:flex;gap:1.2rem;font-size:.85rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.leg span::before{content:"";display:inline-block;width:.8rem;height:.8rem;border-radius:3px;margin-right:.4rem;vertical-align:-1px;background:var(--terra)}
+.leg span+span::before{background:var(--teal)}
+.row{padding:1rem 0;border-top:1px solid rgba(245,239,227,.1)}
+.row h3{font-family:'Manrope',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.6rem}
+.bar{display:flex;align-items:center;gap:.8rem;margin:.3rem 0}
+.bar div{flex:1;height:12px;background:rgba(245,239,227,.07);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--terra);border-radius:99px;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.bar.s i{background:var(--teal)}
+.bar em{font-style:normal;font-weight:700;width:3.4rem;text-align:right;font-size:.95rem}
+.bar.s em{color:var(--teal)}
+/* gráfico */
+#chart{width:100%;height:auto;overflow:visible}
+#chart .ln{fill:none;stroke:var(--amber);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+#chart .pt{fill:var(--night);stroke:var(--teal);stroke-width:3;opacity:0;transition:opacity .4s}
+#chart text{fill:var(--cream);font-family:'Manrope',sans-serif;font-size:13px;opacity:0;transition:opacity .4s}
+#chart .v{font-family:'Unbounded',sans-serif;font-weight:700;fill:var(--amber);font-size:15px}
+#chart .g{stroke:rgba(245,239,227,.1)}
+#chart.in .pt,#chart.in text{opacity:1}
+/* chat */
+.chats{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.chats{grid-template-columns:1fr}}
+.win{background:#0e1630;border:1px solid rgba(245,239,227,.12);border-radius:14px;overflow:hidden}
+.win header{padding:.6rem .9rem;font-size:.8rem;font-weight:700;display:flex;gap:.5rem;align-items:center;background:rgba(245,239,227,.05)}
+.win header::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--terra)}
+.win.sx header::before{background:var(--teal)}
+.win .bd{height:330px;overflow-y:auto;padding:.9rem;display:flex;flex-direction:column;gap:.5rem}
+.m{max-width:88%;padding:.55rem .8rem;border-radius:12px;font-size:.88rem;line-height:1.45}
+.m.u{align-self:flex-end;background:var(--cream);color:var(--night);border-bottom-right-radius:3px}
+.m.k{align-self:flex-start;background:rgba(217,112,63,.18);border:1px solid rgba(217,112,63,.4);border-bottom-left-radius:3px}
+.sx .m.k{background:rgba(45,212,191,.12);border-color:rgba(45,212,191,.4)}
+.m.t::after{content:"▌";animation:bl .8s steps(2) infinite;color:var(--amber)}
+@keyframes bl{50%{opacity:0}}
+.seal{align-self:flex-start;font-size:.75rem;color:var(--teal);border:1px solid var(--teal);border-radius:99px;padding:.1rem .6rem;animation:pop .4s}
+@keyframes pop{from{opacity:0;transform:scale(.8)}}
+/* recursos */
+.feats{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+@media(max-width:700px){.feats{grid-template-columns:1fr}}
+.fx{background:var(--night2);border-radius:18px;padding:1.4rem;border-left:4px solid var(--amber);outline:0;min-height:230px}
+.fx:nth-child(2){border-color:var(--teal)}.fx:nth-child(3){border-color:var(--terra)}.fx:nth-child(4){border-color:var(--cream)}
+.fx h3{font-size:1.05rem;margin-bottom:.4rem}
+.fx p{margin:0 0 1rem;color:var(--mut);font-size:.92rem}
+.demo{position:relative;height:74px}
+.fx .e{position:absolute;left:0;right:0;display:flex;justify-content:space-between;font-size:.82rem;background:rgba(245,239,227,.06);padding:.25rem .6rem;border-radius:8px;transition:transform .5s}
+.fx .e:nth-child(1){top:0}.fx .e:nth-child(2){top:26px}.fx .e:nth-child(3){top:52px}
+.fx:hover .e:nth-child(1),.fx:focus .e:nth-child(1){transform:translateY(52px)}
+.fx:hover .e:nth-child(3),.fx:focus .e:nth-child(3){transform:translateY(-52px)}
+.fx:hover .e:nth-child(2),.fx:focus .e:nth-child(2){color:var(--amber)}
+.ln2{height:8px;border-radius:9px;background:var(--teal);margin:.5rem 0;width:0;transition:width .8s}
+.fx:hover .ln2,.fx:focus .ln2{width:var(--w)}
+.fx:hover .ln2:nth-child(2),.fx:focus .ln2:nth-child(2){transition-delay:.3s}
+.fx:hover .ln2:nth-child(3),.fx:focus .ln2:nth-child(3){transition-delay:.6s}
+.fx:hover .ln2:nth-child(4),.fx:focus .ln2:nth-child(4){transition-delay:.9s}
+.bb{position:absolute;left:0;font-size:.78rem;padding:.2rem .7rem;border-radius:12px;background:var(--terra);color:var(--night);transition:transform .5s;white-space:nowrap}
+.bb:nth-child(2){background:var(--amber);left:14px;top:14px}.bb:nth-child(3){background:var(--cream);left:28px;top:28px}
+.fx:hover .bb:nth-child(2),.fx:focus .bb:nth-child(2){transform:translateY(8px)}
+.fx:hover .bb:nth-child(3),.fx:focus .bb:nth-child(3){transform:translateY(18px) translateX(30px)}
+.dots{display:flex;gap:6px;margin-bottom:.6rem}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--mut)}
+.fx:hover .dots i,.fx:focus .dots i{animation:pl .9s infinite;background:var(--amber)}
+.dots i:nth-child(2){animation-delay:.15s!important}.dots i:nth-child(3){animation-delay:.3s!important}
+@keyframes pl{50%{transform:translateY(-7px)}}
+.pr{height:8px;background:rgba(245,239,227,.1);border-radius:9px;overflow:hidden}
+.pr i{display:block;height:100%;width:0;background:var(--amber);transition:width 2.4s linear}
+.fx:hover .pr i,.fx:focus .pr i{width:100%}
+.pt2{font-size:.8rem;color:var(--teal);margin-top:.5rem;opacity:0;transition:opacity .4s 1.8s}
+.fx:hover .pt2,.fx:focus .pt2{opacity:1}
+/* final */
+.final{text-align:center}
+.final svg{width:120px;margin-bottom:1rem}
+.final h2{font-size:clamp(1.7rem,5.5vw,3rem)}
+footer{position:relative;z-index:1;text-align:center;padding:2rem 1rem 3rem;color:var(--mut);font-size:.85rem;border-top:1px solid rgba(245,239,227,.08)}
+/* animações do Kiba */
+.aL,.aR,.lgL,.lgR,.hd,.bd{transform-box:fill-box}
+.aL{transform-origin:83% 3%;animation:var(--aL,swL) var(--tL,3.2s) ease-in-out infinite}
+.aR{transform-origin:17% 3%;animation:var(--aR,swR) var(--tR,3.2s) ease-in-out infinite}
+.lgL,.lgR{transform-origin:50% 0}
+.lgL{animation:var(--gL,none) .6s ease-in-out infinite}.lgR{animation:var(--gR,none) .6s ease-in-out infinite}
+.hd{transform-origin:50% 100%;animation:var(--hd,none) .35s ease-in-out infinite}
+.bd{transform-origin:50% 100%;animation:brt 3.2s ease-in-out infinite}
+@keyframes swL{50%{transform:rotate(5deg)}}@keyframes swR{50%{transform:rotate(-5deg)}}
+@keyframes swingL{0%,100%{transform:rotate(24deg)}50%{transform:rotate(-24deg)}}@keyframes swingR{0%,100%{transform:rotate(-24deg)}50%{transform:rotate(24deg)}}
+@keyframes wave{0%,100%{transform:rotate(-110deg)}50%{transform:rotate(-142deg)}}
+@keyframes stepL{0%,100%{transform:rotate(15deg)}50%{transform:rotate(-15deg)}}@keyframes stepR{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
+@keyframes nod{50%{transform:translateY(2px) rotate(3deg)}}@keyframes brt{50%{transform:scaleY(1.015)}}
+@keyframes wb{50%{transform:translateY(-4px)}}@keyframes flt{50%{transform:translateY(-7px)}}@keyframes hotp{0%{transform:scale(1.8)}}
+#walker.go{--aL:swingL;--aR:swingR;--tL:.6s;--tR:.6s;--gL:stepL;--gR:stepR}
+#walker.stop{--aL:swL;--aR:wave;--tL:3.2s;--tR:.7s;--gL:none;--gR:none}
+#walker.talk{--hd:nod}
+.fx:nth-child(2){transition-delay:.1s}.fx:nth-child(3){transition-delay:.2s}.fx:nth-child(4){transition-delay:.3s}
+.about svg,.final svg{cursor:pointer}
+#gate{position:absolute;inset:0;z-index:5;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;text-align:center;transition:opacity .5s}
+#gate.off{opacity:0;pointer-events:none}
+#gate p{font:700 .8rem 'Unbounded',sans-serif;letter-spacing:.3em;color:var(--amber);margin:0 0 .5rem}
+#g2{background:none;border:0;color:var(--mut);font:inherit;cursor:pointer;text-decoration:underline}
+#snd{display:none;position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:60;background:rgba(11,16,32,.88);color:var(--cream);border:1px solid rgba(245,239,227,.25);border-radius:99px;padding:.45rem .9rem;font:inherit;font-size:.8rem;cursor:pointer}
+/* v4: visual e interação */
+#grid{position:relative;transition:transform .2s}#grid.flash{animation:gf .9s}@keyframes gf{30%{filter:brightness(1.9) saturate(1.4)}}
+#rain{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#rain i{position:absolute;top:-30%;width:1px;height:26%;background:linear-gradient(transparent,var(--teal),transparent);opacity:.28;animation:rn linear infinite}
+@keyframes rn{to{transform:translateY(520%)}}
+.gw{width:34px;height:42px;background:var(--amber);border-radius:3px;box-shadow:0 0 30px rgba(242,184,75,.7);animation:gwp 2s ease-in-out infinite}
+@keyframes gwp{50%{opacity:.45;box-shadow:0 0 8px rgba(242,184,75,.3)}}
+#pg{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--teal),var(--amber));z-index:70}
+#lt{position:fixed;left:0;top:0;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;background:radial-gradient(circle,rgba(242,184,75,.1),transparent 65%);pointer-events:none;z-index:2;mix-blend-mode:screen;opacity:0;transition:opacity .5s}
+#mk{position:fixed;left:.8rem;bottom:calc(.6rem + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:flex-end;gap:.4rem;pointer-events:none}
+#mk svg{width:54px;height:auto;pointer-events:auto;cursor:pointer;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+#mkb{background:var(--cream);color:var(--night);font-size:.74rem;font-weight:700;padding:.4rem .6rem;border-radius:12px 12px 12px 3px;max-width:170px;margin-bottom:34px;opacity:0;transform:translateY(6px);transition:.4s}
+#mkb.show{opacity:1;transform:none}
+body.lock #mk{display:none}
+.fx{transition:transform .3s,box-shadow .3s,opacity .7s}.fx:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(0,0,0,.4)}
+.bar.s i{position:relative;overflow:hidden}
+.bar.s i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);transform:translateX(-100%);animation:shm 2.6s 1.6s infinite}
+@keyframes shm{to{transform:translateX(100%)}}
+#chart .pul{fill:none;stroke:var(--teal);stroke-width:2;opacity:0;transform-box:fill-box;transform-origin:center}
+#chart.in .pul{animation:pul2 1.8s 2.3s infinite}@keyframes pul2{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(3.6)}}
+.bnw circle:hover{r:9}.bnw:hover .fl{animation-duration:.5s!important}
+.final .btn{animation:glw 2.4s ease-in-out infinite}@keyframes glw{50%{box-shadow:0 0 0 12px rgba(242,184,75,.13)}}
+#city .b{animation:tw 4s ease-in-out infinite}@keyframes tw{50%{filter:brightness(1.9)}}
+.eq{display:inline-flex;gap:2px;align-items:flex-end;height:10px;margin-right:.45rem}
+.eq i{width:2px;height:3px;background:var(--teal)}
+#snd.on .eq i{animation:eq .8s ease-in-out infinite}.eq i:nth-child(2){animation-delay:.2s!important}.eq i:nth-child(3){animation-delay:.4s!important}
+@keyframes eq{50%{height:10px}}
+/* intro v6 */
+#intro{transition:transform 1.1s cubic-bezier(.6,0,.2,1),opacity 1s .1s}
+#intro.out{transform:scale(1.4);opacity:0;pointer-events:none}
+#grid{scale:.9;transition:transform .2s,scale 3.4s ease-out}#grid.pi{scale:1}
+#grid i.hot.on.wv2::after{animation:lw .8s ease-out both;animation-delay:var(--dl)}
+@keyframes lw{0%{transform:scale(1)}40%{transform:scale(1.9);background:#fff;box-shadow:0 0 22px #fff}100%{transform:scale(1)}}
+#moon{position:absolute;top:calc(3rem + env(safe-area-inset-top,0px));left:9%;width:40px;height:40px;border-radius:50%;box-shadow:inset -13px -4px 0 0 var(--cream);opacity:.8;filter:drop-shadow(0 0 12px rgba(245,239,227,.4));pointer-events:none}
+#ff{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#ff i{position:absolute;bottom:-10px;width:4px;height:4px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber);opacity:0;animation:fy linear infinite}
+@keyframes fy{10%{opacity:.9}90%{opacity:.5}to{transform:translate(var(--fx),-105vh);opacity:0}}
+#stage::before{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;background:repeating-linear-gradient(90deg,var(--amber) 0 18px,transparent 18px 40px);opacity:.45}
+#stage.walk::before{animation:rd .5s linear infinite}@keyframes rd{to{background-position-x:-40px}}
+/* contagem regressiva */
+.cd{margin:0 auto 1.8rem}.cd .tag{display:block;margin-bottom:1rem}
+.tiles{display:flex;justify-content:center;gap:.7rem;flex-wrap:wrap}
+.tiles div{background:var(--night2);border:1px solid rgba(45,212,191,.3);border-radius:14px;padding:.8rem 1rem;min-width:78px}
+.tiles b{display:block;font:700 clamp(1.6rem,6vw,2.4rem) 'Unbounded',sans-serif;color:var(--amber)}
+.tiles small{color:var(--mut);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em}
+.tiles b.tick{animation:tkp .35s}@keyframes tkp{from{transform:translateY(-8px);opacity:.3}}
+.big{font-size:1.25rem;padding:1.1rem 2.8rem}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}#walker{transform:none;opacity:1}}
+</style>
+</head>
+<body class="lock">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="kiba" viewBox="0 0 150 205"><g class="p15-tail"><path d="M102 132c22-4 40 3 41 18 1 17-20 27-39 22-15-4-24-14-21-25 2-8 8-13 19-15z" fill="#563426" stroke="#1b120e" stroke-width="4"/><path d="M108 140c15 1 24 8 25 14M103 149c12 1 21 6 25 11M101 157c9 1 16 5 20 9" fill="none" stroke="#8b563d" stroke-width="2.5" stroke-linecap="round"/></g><g class="bd"><path d="M41 83c-9 17-11 42-6 63 7 27 27 39 53 36 27-3 41-22 37-49-3-24-13-42-29-51-18-10-43-9-55 1z" fill="#70412e" stroke="#1c120e" stroke-width="4.5"/><path d="M56 96c-5 21-3 43 7 61 11 9 25 10 37-3 7-18 4-41-6-57-10-6-26-8-38-1z" fill="#e9cda7" stroke="#523425" stroke-width="2.5"/><path d="M47 96c13 8 34 11 48 1l-4 17c-15 7-30 6-45-2z" fill="#24272b"/><path d="M59 103h14l7 9-15 9-14-9z" fill="#d7a74b"/></g><g class="lgL"><path d="M51 145c-6 14-10 28-5 36 4 7 14 8 21 3l-4-12 1-28z" fill="#75452f" stroke="#1d130f" stroke-width="4"/><path d="M42 184c9 4 18 3 27-1-3 10-19 13-28 5z" fill="#d99a3d"/></g><g class="lgR"><path d="M89 145c6 14 10 28 5 36-4 7-14 8-21 3l4-12-1-28z" fill="#75452f" stroke="#1d130f" stroke-width="4"/><path d="M70 188c9 3 18 2 26-3-3 10-19 12-28 5z" fill="#d99a3d"/></g><g class="aL"><path d="M48 100C38 102 28 114 24 130L34 134C38 122 44 114 54 110Z" fill="#75452f" stroke="#1d130f" stroke-width="4" stroke-linejoin="round"/><path d="M19 138c0-7 5-11 11-10 6 1 9 6 7 12-2 6-9 8-14 5-3-2-4-4-4-7z" fill="#d99a3d" stroke="#1d130f" stroke-width="3"/><path d="M24 143v5M30 144v5" stroke="#1d130f" stroke-width="2" stroke-linecap="round"/></g><g class="aR"><path d="M112 100C122 102 132 114 136 130L126 134C122 122 116 114 106 110Z" fill="#75452f" stroke="#1d130f" stroke-width="4" stroke-linejoin="round"/><path d="M141 138c0-7-5-11-11-10-6 1-9 6-7 12 2 6 9 8 14 5 3-2 4-4 4-7z" fill="#d99a3d" stroke="#1d130f" stroke-width="3"/><path d="M136 143v5M130 144v5" stroke="#1d130f" stroke-width="2" stroke-linecap="round"/></g><g class="hd"><path d="M40 78c-11-16-9-35 2-49C53 12 74 5 93 12c19 7 31 24 28 43-3 18-16 30-35 35-18 4-35-2-46-12z" fill="#805039" stroke="#1d130f" stroke-width="4.5"/><path d="M49 55c4-15 16-27 30-32 12-4 24-2 35 3-14 4-23 12-27 24-5 13 0 25 9 33-21 2-38-9-47-28z" fill="#a96a4b" opacity=".42"/><g class="p15-eyes"><ellipse cx="65" cy="43" rx="8" ry="10" fill="#111217"/><ellipse cx="97" cy="43" rx="8" ry="10" fill="#111217"/><circle cx="68" cy="40" r="3" fill="#fff"/><circle cx="100" cy="40" r="3" fill="#fff"/></g><path d="M54 62c13-7 36-7 49 0 3 9-4 16-13 19-12 3-25 0-35-7-4-3-5-8-1-12z" fill="#c98534" stroke="#1d130f" stroke-width="4"/><path d="M60 66c12-4 27-4 39 0" fill="none" stroke="#874b22" stroke-width="2.5"/><path d="M64 72c9 3 19 3 28 0" fill="none" stroke="#f1b85e" stroke-width="1.5"/></g></symbol></defs></svg>
+
+<div id="pg"></div><div id="lt"></div>
+<div id="mk"><svg viewBox="0 0 150 205" aria-label="Kiba"><use href="#kiba"/></svg><div id="mkb"></div></div>
+<button id="snd">Som desligado</button>
+<div id="city" aria-hidden="true"><div class="L" data-s=".05"></div><div class="L" data-s=".12"></div></div>
+
+<div id="intro">
+  <div id="rain"></div><div id="moon"></div><div id="ff"></div><div id="gate"><div class="gw"></div><p>SOROKIBA</p><button class="btn" id="g1">Ligar a cidade com som</button><button id="g2">Entrar sem som</button></div>
+  <button id="skip">Pular</button>
+  <div id="hud"><div><span id="hl">iniciando núcleo…</span><b id="hp">0%</b></div><div id="hb"><i></i></div></div>
+  <div id="grid" aria-label="Janelas acesas formando a palavra SORIX"></div>
+  <div id="stage">
+    <div id="ring"></div>
+    <div id="bubble">Agora eu penso antes de responder.</div>
+    <div id="walker"><svg viewBox="0 0 150 205"><use href="#kiba"/></svg></div>
+  </div>
+  <button class="btn" id="go">Conhecer o Sorix</button>
+</div>
+
+<main>
+<section><div class="wrap about rv">
+  <div>
+    <span class="tag">O que é o Sorix</span>
+    <h2>Um cérebro novo, feito para o Kiba.</h2>
+    <p>O Sorix é o modelo criado especialmente para o Kiba, o ornitorrinco que cuida de Sorokiba. Em vez de frases prontas, ele <b>consulta os dados reais da cidade</b>: profissões, hospital, prefeito e o seu XP.</p>
+    <p>E quando não encontra um dado confiável, ele <b>prefere dizer “não sei”</b> a inventar.</p>
+  </div>
+  <svg viewBox="0 0 150 205" aria-label="Kiba, o ornitorrinco"><use href="#kiba"/></svg>
+</div></section>
+
+<section><div class="wrap">
+  <div class="rv"><span class="tag">O cérebro do Kiba</span><h2>Menos ligações, menos informação</h2><p class="lead">Cada ponto é uma informação; cada linha, uma ligação entre elas. (Ilustração.)</p></div>
+  <div class="brains rv" id="brains">
+    <div class="br"><h3>Kiba Clássico</h3><svg class="bn bo" id="b1" viewBox="0 0 360 280" role="img" aria-label="Cérebro com poucas ligações"></svg><p>Poucas ligações: respostas prontas, com informação limitada.</p></div>
+    <div class="br n"><h3>Kiba + Sorix</h3><svg class="bn bnw" id="b2" viewBox="0 0 360 280" role="img" aria-label="Cérebro com muitas ligações"></svg><p>Muitas ligações: ele encontra dados dentro do jogo (profissões, hospital, prefeito, XP, banco, propostas, histórico) e muito mais.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="rv"><span class="tag">Comparativo</span><h2>Kiba Clássico x Kiba + Sorix</h2>
+  <p class="lead">Cada barra cresce quando entra na tela.</p>
+  <div class="leg"><span>Kiba Clássico</span><span>Kiba + Sorix</span></div></div>
+  <div id="bars"></div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="rv"><span class="tag">Evolução</span><h2>A inteligência do Kiba, versão a versão</h2><p class="lead">De 30% na primeira versão até 80% com o Sorix.</p></div>
+  <svg id="chart" class="rv" viewBox="0 0 620 300" role="img" aria-label="Gráfico de evolução do Kiba: 30%, 45%, 55% e 80%">
+    <g class="g"><line x1="40" x2="600" y1="260" y2="260"/><line x1="40" x2="600" y1="188" y2="188"/><line x1="40" x2="600" y1="116" y2="116"/><line x1="40" x2="600" y1="44" y2="44"/></g>
+    <path id="path" class="ln" d="M70 188 L225 152 L395 128 L555 68"/>
+    <g id="pts"></g>
+  </svg>
+</div></section>
+
+<section><div class="wrap">
+  <div class="rv"><span class="tag">Mesma pergunta, dois Kibas</span><h2>Veja a diferença na conversa</h2><p class="lead">As respostas aparecem sendo digitadas, uma pergunta por vez.</p></div>
+  <div class="chats rv" id="chat">
+    <div class="win"><header>Kiba Clássico</header><div class="bd" id="c1"></div></div>
+    <div class="win sx"><header>Kiba + Sorix</header><div class="bd" id="c2"></div></div>
+  </div>
+  <p style="text-align:center;margin-top:1.2rem"><button class="btn" id="rp" style="display:none">Ver de novo</button></p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="rv"><span class="tag">Recursos novos</span><h2>O que o Sorix traz</h2><p class="lead">Passe o mouse (ou toque) em cada bloco.</p></div>
+  <div class="feats">
+    <div class="fx rv" tabindex="0"><h3>Banco</h3><p>Organiza seu extrato, com a sua autorização.</p>
+      <div class="demo"><div class="e"><span>Salário</span><span>+ R$ 500</span></div><div class="e"><span>Mercado</span><span>− R$ 80</span></div><div class="e"><span>Transporte</span><span>− R$ 30</span></div></div></div>
+    <div class="fx rv" tabindex="0"><h3>Propostas</h3><p>Escreve a proposta para a Prefeitura por você.</p>
+      <div class="demo"><div class="ln2" style="--w:90%"></div><div class="ln2" style="--w:100%"></div><div class="ln2" style="--w:70%"></div></div></div>
+    <div class="fx rv" tabindex="0"><h3>Histórico de conversas</h3><p>O Kiba lembra do que vocês já conversaram.</p>
+      <div class="demo"><span class="bb">Oi, Kiba!</span><span class="bb">Qual meu XP?</span><span class="bb">Valeu!</span></div></div>
+    <div class="fx rv" tabindex="0"><h3>Raciocínio visível</h3><p>Você vê quanto tempo o Kiba pensou.</p>
+      <div class="demo"><div class="dots"><i></i><i></i><i></i></div><div class="pr"><i></i></div><div class="pt2">Pensou por 3,1 s</div></div></div>
+  </div>
+</div></section>
+
+<section class="final"><div class="wrap rv">
+  <svg viewBox="0 0 150 205"><use href="#kiba"/></svg>
+  <h2>O Kiba ficou mais esperto.<br>Venha testar em Sorokiba.</h2>
+  <p class="lead" style="margin:1rem auto 1.6rem">A cidade acordou com um cérebro novo.</p>
+  <div class="cd"><span class="tag" id="cdTag">Lançamento · 12 de outubro de 2026</span>
+    <div class="tiles" id="cdT"><div><b id="cdD">00</b><small>dias</small></div><div><b id="cdH">00</b><small>horas</small></div><div><b id="cdM">00</b><small>min</small></div><div><b id="cdS">00</b><small>seg</small></div></div></div>
+  <a class="btn" id="tst" href="https://sorokiba-update.onrender.com" target="_blank" rel="noopener">Testar a versão de preview</a>
+  <div id="play" style="display:none"><a class="btn big" href="https://sorokiba.onrender.com" target="_blank" rel="noopener">Jogar</a></div>
+</div></section>
+</main>
+<footer>Sorix • feito para o Kiba • Sorokiba 2026</footer>
+
+<script>
+const rm=matchMedia('(prefers-reduced-motion: reduce)').matches,$=s=>document.querySelector(s),wait=ms=>new Promise(r=>setTimeout(r,rm?0:ms));
+/* cidade ao fundo */
+document.querySelectorAll('#city .L').forEach((L,k)=>{for(let i=0;i<(k?14:20);i++){const b=document.createElement('div');b.className='b';b.style.height=(k?30+Math.random()*60:15+Math.random()*45)+'%';b.style.opacity=k?1:.6;b.style.animationDelay=(-Math.random()*4)+'s';L.appendChild(b)}});
+addEventListener('scroll',()=>{if(rm)return;const y=scrollY;document.querySelectorAll('#city .L').forEach(L=>L.style.transform=`translateY(${y*L.dataset.s}px)`)},{passive:true});
+/* som (Web Audio, sem arquivos) */
+let AC=null,snd=false;
+function tone(f,d,ty='sine',v=.06,w=0,to){if(!snd||!AC)return;const t=AC.currentTime+w,o=AC.createOscillator(),g=AC.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(M);o.start(t);o.stop(t+d+.05)}
+const chime=()=>[523,659,784,1047].forEach((f,i)=>tone(f,.5,'sine',.07,i*.11));
+const click=()=>{tone(660,.08,'triangle',.08);tone(990,.12,'triangle',.08,.07)};
+const chirp=(n=7)=>{for(let i=0;i<n;i++)tone(300+Math.random()*260,.09,'triangle',.07,i*.1,260+Math.random()*300)};
+const talk=(el,ms)=>{el.classList.add('talk');setTimeout(()=>el.classList.remove('talk'),ms)};
+let M,DL,NB,nt=0,st=0,mus=0;
+const CH=[[220,261.6,329.6],[174.6,220,261.6],[196,261.6,329.6],[196,246.9,293.7]],RT=[110,87.3,130.8,98],AP=[0,1,2,1,2,1,0,2];
+function musicInit(){M=AC.createGain();M.gain.value=0;const C=AC.createDynamicsCompressor();M.connect(C);C.connect(AC.destination);DL=AC.createDelay(1);DL.delayTime.value=.34;const fb=AC.createGain();fb.gain.value=.36;DL.connect(fb);fb.connect(DL);DL.connect(M);NB=AC.createBuffer(1,AC.sampleRate*.05|0,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;nt=AC.currentTime+.2;setInterval(sched,100)}
+function note(f,t,d,ty,v,sd){const o=AC.createOscillator(),g=AC.createGain();o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(M);if(sd)g.connect(DL);o.start(t);o.stop(t+d+.05)}
+function pad(f,t,d){const g=AC.createGain(),l=AC.createBiquadFilter();l.type='lowpass';l.frequency.value=900;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.045,t+.8);g.gain.linearRampToValueAtTime(.0001,t+d);l.connect(g);g.connect(M);[1,1.006].forEach(r=>{const o=AC.createOscillator();o.type='triangle';o.frequency.value=f*r;o.connect(l);o.start(t);o.stop(t+d+.05)})}
+function hat(t){const s=AC.createBufferSource(),h=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;h.type='highpass';h.frequency.value=7000;g.gain.value=.025;s.connect(h);h.connect(g);g.connect(M);s.start(t)}
+function sched(){if(!AC||!M)return;if(!snd||!mus){nt=AC.currentTime+.2;return}
+  while(nt<AC.currentTime+.3){const q=st%32,c=q>>3,k=q&7,t=nt;
+    if(k===0)CH[c].forEach(f=>pad(f,t,2.8));
+    if(k===0||k===4)note(RT[c],t,.9,'sine',.16);
+    if(mus>1){if(k!==5)note(CH[c][AP[k]]*2,t,.4,'triangle',.05,1);if(k&1)hat(t);}
+    nt+=.341;st++}}
+const upd=()=>{$('#snd').innerHTML='<span class="eq"><i></i><i></i><i></i></span>'+(snd?'Som ligado':'Som desligado');$('#snd').classList.toggle('on',snd);if(M)M.gain.setTargetAtTime(snd?.8:0,AC.currentTime,.1)};
+function initAC(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();musicInit()}catch(e){}}if(AC)AC.resume()}
+$('#snd').onclick=()=>{initAC();snd=!snd&&!!AC;upd();click()};
+/* intro */
+const F={S:['01111','10000','01110','00001','11110'],O:['01110','10001','10001','10001','01110'],R:['11110','10001','11110','10010','10001'],I:['11111','00100','00100','00100','11111'],X:['10001','01010','00100','01010','10001']};
+const C=31,R=12,g=$('#grid'),letter=new Set(),cells=[];
+[...'SORIX'].forEach((ch,li)=>F[ch].forEach((row,r)=>[...row].forEach((v,c)=>{if(v==='1')letter.add((r+4)*C+1+li*6+c)})));
+let tops=[],col=0;while(col<C){const w=3+Math.floor(Math.random()*3),t=Math.floor(Math.random()*4);for(let i=0;i<w&&col<C;i++,col++)tops[col]=[t,i===0]}
+for(let r=0;r<R;r++)for(let c=0;c<C;c++){const i=document.createElement('i'),k=r*C+c;if(r<tops[c][0]&&!letter.has(k))i.className='nb';else if(tops[c][1])i.className='edge';g.appendChild(i);cells.push(i)}
+let finished=false;
+async function intro(){
+  $('#grid').classList.add('pi');
+  const vis=cells.filter(c=>!c.classList.contains('nb')).sort(()=>Math.random()-.5);
+  const step=rm?0:Math.max(3,1800/vis.length);
+  const lg=['iniciando núcleo…','lendo profissões…','lendo hospital e prefeitura…','carregando perfil e XP…','SORIX online · feito para o Kiba'];let n=0;
+  for(const c of vis){c.classList.add('on');if(Math.random()<.25)c.classList.add('tl');n++;const p=Math.round(n/vis.length*100);if(n%4===0)tone(500+p*9,.04,'square',.012);$('#hp').textContent=p+'%';$('#hb i').style.width=p+'%';$('#hl').textContent=lg[Math.min(4,Math.floor(p/25))];if(step)await wait(step)}
+  await wait(500);
+  const LC=[...letter].map(k=>cells[k]);
+  for(let i=0;i<6;i++){LC.forEach(c=>c.classList.toggle('dim',i%2===0));tone(200+Math.random()*900,.05,'square',.02);await wait(80)}
+  LC.forEach(c=>c.classList.remove('dim'));
+  tone(110,.9,'sawtooth',.04,0,330);chime();mus=2;$('#grid').classList.add('flash');
+  cells.forEach((c,k)=>{if(letter.has(k))c.classList.add('hot');else setTimeout(()=>c.classList.add('dim'),rm?0:Math.random()*700)});
+  [...letter].forEach(k=>{const c=cells[k];c.style.setProperty('--dl',(k%C)*35+'ms');c.classList.add('wv2')});
+  await wait(1200);
+  $('#walker').classList.add('go');$('#stage').classList.add('walk');for(let i=0;i<8;i++)tone(130,.07,'triangle',.09,i*.32,70);await wait(2700);
+  $('#walker').classList.add('stop');$('#stage').classList.remove('walk');$('#ring').classList.add('show');$('#bubble').classList.add('show');tone(300,.5,'sine',.05,0,900);chirp(7);talk($('#walker'),1500);await wait(700);
+  $('#go').classList.add('show');
+}
+function start(m){if(m){initAC();snd=!!AC}mus=1;$('#snd').style.display='block';upd();$('#gate').classList.add('off');setTimeout(()=>$('#gate').remove(),600);intro()}
+$('#g1').onclick=()=>start(1);$('#g2').onclick=()=>start(0);
+function close(){mus=2;const i=$('#intro');i.classList.add('out');document.body.classList.remove('lock');setTimeout(()=>i.remove(),1100)}
+$('#go').onclick=()=>{click();close()};
+$('#skip').onclick=()=>{$('#walker').classList.add('go','stop');$('#bubble').classList.add('show');$('#go').classList.add('show');close()};
+/* cérebros */
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rd=rng(7),pts=[];
+for(let k=0;k<6000&&pts.length<26;k++){const x=30+rd()*300,y=30+rd()*180;if(((x-180)/140)**2+((y-120)/88)**2<1&&pts.every(p=>Math.hypot(p[0]-x,p[1]-y)>34))pts.push([x,y])}
+const hub=[];pts.forEach((p,i)=>{if(hub.length<7&&hub.every(j=>Math.hypot(pts[j][0]-p[0],pts[j][1]-p[1])>72))hub.push(i)});
+function net(svg,P,k,H=[]){const E=new Set();let h='',n=0;
+  P.forEach((p,i)=>P.map((q,j)=>[j,Math.hypot(p[0]-q[0],p[1]-q[1])]).filter(a=>a[0]!==i).sort((a,b)=>a[1]-b[1]).slice(0,k).forEach(a=>E.add(Math.min(i,a[0])+'-'+Math.max(i,a[0]))));
+  E.forEach(e=>{const[a,b]=e.split('-');h+=`<line class="${n%3?'':'fl'}" style="--d:${n*35}ms" x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}"/>`;n++});
+  P.forEach((p,i)=>h+=`<circle style="--d:${i*50}ms" cx="${p[0]}" cy="${p[1]}" r="${H.includes(i)?6:4}"/>`);
+  ['Profissões','Hospital','Prefeito','XP','Banco','Propostas','Histórico'].slice(0,H.length).forEach((t,i)=>{h+=`<text x="${P[H[i]][0]}" y="${P[H[i]][1]-11}" text-anchor="middle">${t}</text>`});
+  svg.innerHTML='<path class="o" d="M180 25C100 5 30 45 30 110c-12 35 8 80 50 90 25 40 80 45 100 15 20 30 75 25 100-15 42-10 62-55 50-90C330 45 260 5 180 25z"/><path class="o" d="M180 28c-12 50 12 90-2 150" opacity=".5"/>'+h}
+net($('#b1'),pts.filter((_,i)=>i%3===0),1);net($('#b2'),pts,3,hub);
+/* barras */
+const rows=[['Conhecimento real da cidade',45,70],['Não inventar respostas',60,100],['Usa dados reais do jogador e da cidade',40,85],['Ações no jogo (banco, propostas)',0,70],['Histórico de conversas',0,90],['Raciocínio visível (“Pensou por X s”)',0,100]];
+$('#bars').innerHTML=rows.map(r=>`<div class="row rv"><h3>${r[0]}</h3><div class="bar"><div><i data-w="${r[1]}"></i></div><em data-count="${r[1]}">0%</em></div><div class="bar s"><div><i data-w="${r[2]}"></i></div><em data-count="${r[2]}">0%</em></div></div>`).join('');
+/* gráfico */
+const P=[[70,188,30,'Kiba v1'],[225,152,45,'Kiba Memória'],[395,128,55,'Kiba Intro'],[555,68,80,'Kiba + Sorix']];
+$('#pts').innerHTML=P.map(p=>`<circle class="pt" cx="${p[0]}" cy="${p[1]}" r="7"/><text class="v" x="${p[0]}" y="${p[1]-18}" text-anchor="middle">${p[2]}%</text><text x="${p[0]}" y="285" text-anchor="middle">${p[3]}</text>`).join('');
+$('#pts').insertAdjacentHTML('beforeend','<circle class="pul" cx="555" cy="68" r="7"/>');
+const pa=$('#path'),L=pa.getTotalLength();
+if(!rm){pa.style.strokeDasharray=L;pa.style.strokeDashoffset=L}
+/* chat */
+const Q=[['Quantas profissões existem em Sorokiba?','População: 24 • Economia: 8.500 • Infraestrutura: 65…','Encontrei 12 profissões cadastradas: Estudante (R$ 100), Entregador de Food (R$ 250), Mecânico (R$ 400), Professor (R$ 500)…'],['Quem é o prefeito?','A Prefeitura administra partes importantes da cidade…','Consultei o cadastro público de Sorokiba: Chen é o prefeito atual.'],['O que faz o hospital?','Consulta Rápida: R$ 100 — recupera 30 de vida…','Encontrei 8 serviços: Exame de sangue, Raio-X, Eletrocardiograma, Tomografia, Ressonância…'],['Qual a capital da França?','Entendi. Tente fazer uma pergunta mais específica…','Não consegui relacionar sua pergunta a um dado confiável da cidade. Prefiro não inventar.']];
+function msg(box,cls){const d=document.createElement('div');d.className='m '+cls;box.appendChild(d);box.scrollTop=box.scrollHeight;return d}
+async function type(el,t,p){if(rm){el.textContent=t;return}el.classList.add('t');for(let i=1;i<=t.length;i++){el.textContent=t.slice(0,i);el.parentNode.scrollTop=1e5;if(p&&i%3===0)tone(p+Math.random()*40,.03,'square',.012);await wait(16)}el.classList.remove('t')}
+async function chat(){
+  const a=$('#c1'),b=$('#c2');
+  for(const q of Q){
+    await Promise.all([type(msg(a,'u'),q[0]),type(msg(b,'u'),q[0])]);await wait(400);
+    await type(msg(a,'k'),q[1],200);await wait(300);
+    await type(msg(b,'k'),q[2],520);
+    const s=document.createElement('div');s.className='seal';s.textContent='Pensou por 3,1 s';b.appendChild(s);b.scrollTop=1e5;tone(880,.15,'sine',.05);
+    await wait(1600);
+  }
+  $('#rp').style.display='inline-block';
+}
+/* contadores e observador */
+function count(el){const v=+el.dataset.count;if(rm){el.textContent=v+'%';return}const t0=performance.now();(function f(t){const p=Math.min((t-t0)/1300,1);el.textContent=Math.round(v*(1-Math.pow(1-p,3)))+'%';if(p<1)requestAnimationFrame(f)})(t0)}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const t=e.target;io.unobserve(t);t.classList.add('in');if(t.classList.contains('row'))tone(300+Math.random()*200,.12,'sine',.03);
+  t.querySelectorAll('[data-w]').forEach(i=>i.style.width=i.dataset.w+'%');
+  t.querySelectorAll('[data-count]').forEach(count);
+  if(t.id==='chart'&&!rm){pa.style.transition='stroke-dashoffset 2.2s ease-out';pa.style.strokeDashoffset=0}
+  if(t.id==='chat')chat();if(t.id==='brains')tone(200,1.2,'sine',.04,0,800);
+}),{threshold:.25});
+document.querySelectorAll('.rv').forEach(e=>io.observe(e));
+document.querySelectorAll('.fx').forEach(f=>f.addEventListener('mouseenter',()=>tone(560,.08,'triangle',.04)));
+document.querySelectorAll('.about svg,.final svg,#mk svg').forEach(v=>{v.setAttribute('title','Clique no Kiba');v.addEventListener('click',()=>{chirp(5);v.style.setProperty('--aR','wave');v.style.setProperty('--tR','.7s');v.style.setProperty('--hd','nod');setTimeout(()=>['--aR','--tR','--hd'].forEach(k=>v.style.removeProperty(k)),1600)})});
+$('#rp').onclick=()=>{$('#rp').style.display='none';$('#c1').innerHTML=$('#c2').innerHTML='';chat()};
+/* chuva de dados */
+for(let i=0;i<18;i++){const d=document.createElement('i');d.style.cssText=`left:${Math.random()*100}%;animation-duration:${2.5+Math.random()*3}s;animation-delay:${-Math.random()*5}s`;$('#rain').appendChild(d)}
+if(!rm){$('#intro').addEventListener('pointermove',e=>{$('#grid').style.transform=`perspective(700px) rotateY(${(e.clientX/innerWidth-.5)*8}deg) rotateX(${(e.clientY/innerHeight-.5)*-6}deg)`});
+  addEventListener('pointermove',e=>{$('#lt').style.opacity=1;requestAnimationFrame(()=>$('#lt').style.transform=`translate(${e.clientX}px,${e.clientY}px)`)})}
+addEventListener('scroll',()=>{$('#pg').style.width=(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight)*100)+'%'},{passive:true});
+/* Kiba companheiro */
+const SAY={'O que é o Sorix':'Esse sou eu! Clique em mim.','O cérebro do Kiba':'Mais ligações, mais respostas!','Comparativo':'Olha as barras crescendo!','Evolução':'Evoluí a cada versão.','Mesma pergunta, dois Kibas':'Compare as respostas!','Recursos novos':'Passe o mouse nos blocos!',final:'Vamos para Sorokiba?'};
+let mt;const so=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting||document.body.classList.contains('lock'))return;const t=e.target.querySelector('.tag'),b=$('#mkb');b.textContent=SAY[t?t.textContent:'final']||'';b.classList.add('show');clearTimeout(mt);mt=setTimeout(()=>b.classList.remove('show'),4500);tone(700,.06,'triangle',.03)}),{threshold:.25});
+document.querySelectorAll('main section').forEach(x=>so.observe(x));
+for(let i=0;i<16;i++){const d=document.createElement('i');d.style.cssText=`left:${Math.random()*100}%;--fx:${Math.random()*80-40}px;animation-duration:${5+Math.random()*5}s;animation-delay:${-Math.random()*8}s`;$('#ff').appendChild(d)}
+/* cronômetro: 12/10/2026 00:00 (Brasília, UTC-3). Para testar o estado final, abra a página com #lancou no endereço */
+const T=Date.UTC(2026,9,12,3,0,0),ids=['cdD','cdH','cdM','cdS'];let done=null;
+function cd(){const d=T-Date.now(),L=d<=0||location.hash==='#lancou';
+  if(L){if(done===false){chime();chirp(6);const k=$('.final svg');k.style.setProperty('--aR','wave');k.style.setProperty('--tR','.7s')}
+    if(done!==true){done=true;$('#cdT').style.display='none';$('#tst').style.display='none';$('#play').style.display='block';$('#cdTag').textContent='O dia chegou! Sorokiba está aberta.'}return}
+  done=false;[Math.floor(d/864e5),Math.floor(d/36e5)%24,Math.floor(d/6e4)%60,Math.floor(d/1e3)%60].forEach((n,i)=>{const e=$('#'+ids[i]),t=String(n).padStart(2,'0');if(e.textContent!==t){e.textContent=t;e.classList.remove('tick');void e.offsetWidth;e.classList.add('tick')}})}
+cd();setInterval(cd,1000);addEventListener('hashchange',cd);
+</script>
+</body>
+</html>
